@@ -20,8 +20,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             CoroutinesFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MergeView(
-                        modifier = Modifier.padding(innerPadding)
+                    RunningReduceView(
+                        modifier = Modifier.fillMaxSize().padding(innerPadding)
                     )
                 }
             }

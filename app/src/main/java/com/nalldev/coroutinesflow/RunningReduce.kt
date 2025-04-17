@@ -16,15 +16,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.runningReduce
+import kotlinx.coroutines.flow.stateIn
 
-class MergeViewModel : ViewModel() {
+class RunningReduceViewModel : ViewModel() {
     val newsFromDB: Flow<List<NewsDB>> = flowOf(
         listOf(NewsDB(1, "Title 1", "Comedy"), NewsDB(2, "Title 2", "Comedy")),
         listOf(NewsDB(3, "Title 3", "Politic"), NewsDB(4, "Title 4", "Politic"))
@@ -49,31 +50,26 @@ class MergeViewModel : ViewModel() {
         delay(2000)
     }
 
-    val allNews: StateFlow<List<NewsUI>>
-        field = MutableStateFlow(emptyList())
-
-    init {
-        viewModelScope.launch {
-            merge(
-                newsFromAPI.map { list -> list.map { NewsUI(it.id, it.title, it.category) } },
-                newsFromDB.map { list -> list.map { NewsUI(it.id, it.title, it.category) } },
-            ).collect { listNews ->
-                listNews.forEach { news ->
-                    if (allNews.value.none { it.id == news.id }) {
-                        allNews.value = allNews.value + news
-                    }
-                }
-            }
+    val allNews: StateFlow<List<NewsUI>> = merge(
+        newsFromDB.map { list -> list.map { NewsUI(it.id, it.title, it.category) } },
+        newsFromAPI.map { list -> list.map { NewsUI(it.id, it.title, it.category) } }
+    ).runningReduce { oldList, newList ->
+        val otherNews = newList.filter { newItem ->
+            oldList.none { oldItem -> oldItem.id == newItem.id }
         }
+        oldList + otherNews
     }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 }
 
 
-
-
 @Composable
-fun MergeView(modifier: Modifier = Modifier) {
-    val viewModel: MergeViewModel = viewModel()
+fun RunningReduceView(modifier: Modifier = Modifier) {
+    val viewModel: RunningReduceViewModel = viewModel()
     val newsUI by viewModel.allNews.collectAsStateWithLifecycle()
 
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
