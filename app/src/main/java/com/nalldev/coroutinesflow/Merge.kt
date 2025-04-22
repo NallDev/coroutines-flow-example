@@ -72,7 +72,7 @@ class MergeViewModel : ViewModel() {
 
 
 @Composable
-fun MergeView(modifier: Modifier = Modifier) {
+fun MergeScreen(modifier: Modifier = Modifier) {
     val viewModel: MergeViewModel = viewModel()
     val newsUI by viewModel.allNews.collectAsStateWithLifecycle()
 

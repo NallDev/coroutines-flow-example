@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CoroutinesFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    FilterView(
+                    ZipScreen(
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     )
                 }

@@ -45,7 +45,7 @@ class MapViewModel : ViewModel() {
 }
 
 @Composable
-fun MapView(modifier: Modifier = Modifier) {
+fun MapScreen(modifier: Modifier = Modifier) {
     val viewModel: MapViewModel = viewModel()
     val newsUI by viewModel.news.collectAsStateWithLifecycle(emptyList())
 

@@ -1,8 +1,7 @@
 package com.nalldev.coroutinesflow
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,22 +12,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.LocalTime
 import kotlin.time.Duration.Companion.seconds
 
-data class Person(
-    val id: Int,
-    val name: String,
-    val time: String
-)
 
-class FilterViewModel : ViewModel() {
+class ScanViewModel : ViewModel() {
     private val person = flowOf(
         Person(1, "Nal", "07:33"),
         Person(2, "Ucup", "08:01"),
@@ -38,36 +33,32 @@ class FilterViewModel : ViewModel() {
         delay(2.seconds.inWholeMilliseconds)
     }
 
-    val latePeople: StateFlow<List<Person>>
-        field = MutableStateFlow(emptyList())
+    val latePeople: StateFlow<List<Person>> = person.filter {
+        LocalTime.parse(it.time) > LocalTime.parse("08:00")
+    }.scan(emptyList<Person>()) { oldList, person ->
+        oldList + person
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
 
-    val onTimePeople: StateFlow<List<Person>>
-        field = MutableStateFlow(emptyList())
-
-    init {
-        viewModelScope.launch {
-            launch {
-                person.filter {
-                    LocalTime.parse(it.time) > LocalTime.parse("08:00")
-                }.collect { person ->
-                    latePeople.value = latePeople.value + person
-                }
-            }
-
-            launch {
-                person.filter {
-                    LocalTime.parse(it.time) <= LocalTime.parse("08:00")
-                }.collect { person ->
-                    onTimePeople.value = onTimePeople.value + person
-                }
-            }
-        }
-    }
+    val onTimePeople: StateFlow<List<Person>> = person.filter {
+        LocalTime.parse(it.time) <= LocalTime.parse("08:00")
+    }.scan(emptyList<Person>()) { oldList, person ->
+        oldList + person
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
 }
 
+
+
 @Composable
-fun FilterScreen(modifier: Modifier = Modifier) {
-    val viewModel: FilterViewModel = viewModel()
+fun ScanScreen(modifier: Modifier = Modifier) {
+    val viewModel: ScanViewModel = viewModel()
 
     val latePeople by viewModel.latePeople.collectAsStateWithLifecycle()
     val onTimePeople by viewModel.onTimePeople.collectAsStateWithLifecycle()

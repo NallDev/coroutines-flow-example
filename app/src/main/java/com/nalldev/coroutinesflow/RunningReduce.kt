@@ -68,7 +68,7 @@ class RunningReduceViewModel : ViewModel() {
 
 
 @Composable
-fun RunningReduceView(modifier: Modifier = Modifier) {
+fun RunningReduceScreen(modifier: Modifier = Modifier) {
     val viewModel: RunningReduceViewModel = viewModel()
     val newsUI by viewModel.allNews.collectAsStateWithLifecycle()
 

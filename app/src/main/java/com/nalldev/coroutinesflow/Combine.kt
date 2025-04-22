@@ -71,7 +71,7 @@ class CombineViewModel : ViewModel() {
 
 
 @Composable
-fun CombineView(modifier: Modifier = Modifier) {
+fun CombineScreen(modifier: Modifier = Modifier) {
     val viewModel: CombineViewModel = viewModel()
     val isAllFormValid by viewModel.isAllFormValid.collectAsStateWithLifecycle()
     val username by viewModel.username.collectAsStateWithLifecycle()

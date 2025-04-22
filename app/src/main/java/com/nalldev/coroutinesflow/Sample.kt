@@ -42,7 +42,7 @@ class SampleViewModel : ViewModel() {
 
 
 @Composable
-fun SampleView(modifier: Modifier = Modifier) {
+fun SampleScreen(modifier: Modifier = Modifier) {
     val viewModel: SampleViewModel = viewModel()
     val downloadProgress by viewModel.downloadProgress.collectAsStateWithLifecycle()
 

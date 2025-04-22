@@ -39,7 +39,7 @@ class DebounceViewModel : ViewModel() {
 }
 
 @Composable
-fun DebounceView(modifier: Modifier = Modifier) {
+fun DebounceScreen(modifier: Modifier = Modifier) {
     val viewModel: DebounceViewModel = viewModel()
     val isPasswordValid by viewModel.isPasswordValid.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
