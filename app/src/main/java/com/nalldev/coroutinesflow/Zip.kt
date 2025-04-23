@@ -27,9 +27,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 
-
-
-
 data class Question(
     val question: String,
     val correctAnswer: Boolean
@@ -64,8 +61,6 @@ class ZipViewModel : ViewModel() {
         userAnswer.emit(answer)
     }
 }
-
-
 
 @Composable
 fun ZipScreen(modifier: Modifier = Modifier) {
